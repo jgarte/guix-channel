@@ -20,39 +20,21 @@
 	  "emacs-async"
 	  "nss-certs"))))
 
-;; (define my-basic-services
-;;   (modify-services
-;;     %desktop-services
-;;     (guix-service-type
-;;      config => (guix-configuration
-;; 		(inherit config)
-;; 		(substitute-urls
-;; 		 '("https://mirror.sjtu.edu.cn/guix/"
-;;                    "https://bordeaux.guix.gnu.org"))))))
+(define my-base-services
+  (modify-services
+    %base-services
+    (guix-service-type
+     config => (guix-configuration
+		(inherit config)
+		(substitute-urls
+		 '("https://mirror.sjtu.edu.cn/guix/"
+		   "https://bordeaux.guix.gnu.org"))))))
 
-;; (define my-system-services
-;;   (append
-;;    my-basic-services
-;;    (list
-;;     (service openssh-service-type))))
-
-(operating-system
- (locale "en_US.utf8")
- (timezone "Europe/Moscow")
- (keyboard-layout (keyboard-layout "us"))
- (host-name "workstation")
- (users (cons* (user-account
-                (name "user")
-                (comment "User")
-                (group "users")
-                (home-directory "/home/user")
-                (supplementary-groups
-                 my-system-supplementary-groups))
-               %base-user-accounts))
- (packages my-system-packages)
- (services
+(define my-workstation-services
   (append
-   (list (service sddm-service-type)
+   my-base-services
+   (list
+    (service sddm-service-type)
 	 (screen-locker-service xlockmore "xlock")
 	 (simple-service 'mtp udev-service-type (list libmtp))
 	 (service sane-service-type)
@@ -91,8 +73,23 @@
          (service alsa-service-type)
 	 (service openssh-service-type
 		  (openssh-configuration
-                   (port-number 2222))))
-   my-base-services))
+                   (port-number 2222))))))
+
+(operating-system
+ (locale "en_US.utf8")
+ (timezone "Europe/Moscow")
+ (keyboard-layout (keyboard-layout "us"))
+ (host-name "workstation")
+ (users (cons* (user-account
+                (name "user")
+                (comment "User")
+                (group "users")
+                (home-directory "/home/user")
+                (supplementary-groups
+                 my-system-supplementary-groups))
+               %base-user-accounts))
+ (packages my-system-packages)
+ (services my-workstation-services)
  (bootloader
   (bootloader-configuration
    (bootloader grub-bootloader)
@@ -103,13 +100,3 @@
                         (mount-point "/")
                         (type "ext4"))
                      %base-file-systems)))
-
-(define my-base-services
-  (modify-services
-    %base-services
-    (guix-service-type
-     config => (guix-configuration
-		(inherit config)
-		(substitute-urls
-		 '("https://mirror.sjtu.edu.cn/guix/"
-		   "https://bordeaux.guix.gnu.org"))))))
