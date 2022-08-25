@@ -11,7 +11,8 @@
   (append
    %base-packages
    (map (compose list specification->package+output)
-	'("git"
+	'("ungoogled-chromium"
+	  "git"
 	  "xrandr"
 	  "emacs"
 	  "emacs-exwm"
@@ -30,7 +31,7 @@
 		 '("https://mirror.sjtu.edu.cn/guix/"
 		   "https://bordeaux.guix.gnu.org"))))))
 
-(define my-workstation-services
+(define my-browser-services
   (append
    my-base-services
    (list
@@ -70,13 +71,16 @@
          (service ntp-service-type)
          x11-socket-directory-service
          (service pulseaudio-service-type)
-         (service alsa-service-type))))
+         (service alsa-service-type)
+	 (service openssh-service-type
+		  (openssh-configuration
+                   (port-number 22))))))
 
 (operating-system
  (locale "en_US.utf8")
  (timezone "Europe/Moscow")
  (keyboard-layout (keyboard-layout "us"))
- (host-name "workstation")
+ (host-name "browser")
  (users (cons* (user-account
                 (name "user")
                 (comment "User")
@@ -86,7 +90,7 @@
                  my-system-supplementary-groups))
                %base-user-accounts))
  (packages my-system-packages)
- (services my-workstation-services)
+ (services my-browser-services)
  (bootloader
   (bootloader-configuration
    (bootloader grub-bootloader)

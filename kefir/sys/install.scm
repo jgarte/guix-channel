@@ -244,9 +244,11 @@ the user's target storage device rather than on the RAM disk."
 								     (string-append #$output "/"
 										    target)))
 							'(#$(local-file "channels.tmpl")
-							  #$(local-file "workstation-vm.tmpl"))
+							  #$(local-file "workstation-vm.tmpl")
+							  #$(local-file "browser-vm.tmpl"))
 							'("channels.scm"
-							  "workstation-vm.scm"))
+							  "workstation-vm.scm"
+							  "browser-vm.scm"))
 					      #t))))
 
   `(("configuration" ,directory)))
@@ -327,10 +329,11 @@ Alt-F2 to access documentation.\x1b[0m
      ;; Generic services
      (list (service virtual-terminal-service-type)
 
-           (service kmscon-service-type
-                    (kmscon-configuration
-                     (virtual-terminal "tty1")
-                     (login-program (installer-program))))
+	   (normal-tty "tty1")
+           ;; (service kmscon-service-type
+           ;;          (kmscon-configuration
+           ;;           (virtual-terminal "tty1")
+           ;;           (login-program (installer-program))))
 
            (login-service (login-configuration
                            (motd motd)))
