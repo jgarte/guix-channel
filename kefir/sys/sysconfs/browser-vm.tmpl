@@ -1,0 +1,103 @@
+(use-modules (gnu)
+			 (gnu system setuid))
+(use-service-modules sddm networking ssh xorg
+					 desktop avahi dbus sound)
+(use-package-modules xdisorg libusb nfs linux gnome)
+
+(define my-system-supplementary-groups
+  '("wheel" "netdev" "audio" "video"))
+
+(define my-system-packages
+  (append
+   %base-packages
+   (map (compose list specification->package+output)
+		'("ungoogled-chromium"
+		  "git"
+		  "xrandr"
+		  "emacs"
+		  "emacs-exwm"
+		  "emacs-magit"
+		  "emacs-stuff"
+		  "emacs-async"
+		  "nss-certs"))))
+
+(define my-base-services
+  (modify-services
+   %base-services
+   (guix-service-type
+    config => (guix-configuration
+			   (inherit config)
+			   (substitute-urls
+				'("https://mirror.sjtu.edu.cn/guix/"
+				  "https://bordeaux.guix.gnu.org"))))))
+
+(define my-browser-services
+  (append
+   my-base-services
+   (list
+    (service sddm-service-type)
+	(screen-locker-service xlockmore "xlock")
+	(simple-service 'mtp udev-service-type (list libmtp))
+	(service sane-service-type)
+	polkit-wheel-service
+	(simple-service
+	 'mount-setuid-helpers
+	 setuid-program-service-type
+     (map (lambda (program)
+            (setuid-program
+             (program program)))
+          (list (file-append nfs-utils "/sbin/mount.nfs")
+				(file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
+	fontconfig-file-system-service
+	(service network-manager-service-type)
+	(service wpa-supplicant-service-type)
+	(simple-service 'network-manager-applet
+                    profile-service-type
+                    (list network-manager-applet))
+    (service modem-manager-service-type)
+    (service usb-modeswitch-service-type)
+
+    ;; The D-Bus clique.
+    (service avahi-service-type)
+    (udisks-service)
+    (service upower-service-type)
+    (accountsservice-service)
+    (service cups-pk-helper-service-type)
+    (service colord-service-type)
+    (geoclue-service)
+    (service polkit-service-type)
+    (elogind-service)
+    (dbus-service)
+    (service ntp-service-type)
+    x11-socket-directory-service
+    (service pulseaudio-service-type)
+    (service alsa-service-type)
+	(service openssh-service-type
+			 (openssh-configuration
+              (port-number 22))))))
+
+(operating-system
+ (locale "en_US.utf8")
+ (timezone "Europe/Moscow")
+ (keyboard-layout (keyboard-layout "us"))
+ (host-name "browser")
+ (users (cons* (user-account
+                (name "user")
+                (comment "User")
+                (group "users")
+                (home-directory "/home/user")
+                (supplementary-groups
+                 my-system-supplementary-groups))
+			   %base-user-accounts))
+ (packages my-system-packages)
+ (services my-browser-services)
+ (bootloader
+  (bootloader-configuration
+   (bootloader grub-bootloader)
+   (targets '("/dev/sda"))
+   (keyboard-layout keyboard-layout)))
+ (file-systems (cons (file-system
+                      (device (file-system-label "my-root"))
+                      (mount-point "/")
+                      (type "ext4"))
+                     %base-file-systems)))

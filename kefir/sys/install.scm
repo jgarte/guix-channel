@@ -232,8 +232,7 @@ the user's target storage device rather than on the RAM disk."
 
 
 (define (/etc/configuration-files _)
-  "Return a list of tuples representing configuration templates to add to
-/etc."
+  "Return a list of tuples representing configuration templates to add to /etc."
   (define directory
     (computed-file "configuration-templates"
                    (with-imported-modules '((guix build utils))
@@ -244,11 +243,15 @@ the user's target storage device rather than on the RAM disk."
 								     (string-append #$output "/"
 										    target)))
 							'(#$(local-file "channels.tmpl")
-							  #$(local-file "workstation-vm.tmpl")
-							  #$(local-file "browser-vm.tmpl"))
+							  #$(local-file "sysconfs/workstation-vm.tmpl")
+							  #$(local-file "sysconfs/browser-vm.tmpl")
+							  #$(local-file "sysconfs/data.tmpl")
+							  #$(local-file "sysconfs/docker.tmpl"))
 							'("channels.scm"
 							  "workstation-vm.scm"
-							  "browser-vm.scm"))
+							  "browser-vm.scm"
+							  "data.tmpl"
+							  "docker.tmpl"))
 					      #t))))
 
   `(("configuration" ,directory)))
@@ -323,7 +326,7 @@ Alt-F2 to access documentation.\x1b[0m
                                                 (login-pause? #t))))
 
     (define bare-bones-os
-      (load "bare-bones.tmpl"))
+      (load "sysconfs/bare-bones.tmpl"))
 
     (append
      ;; Generic services
