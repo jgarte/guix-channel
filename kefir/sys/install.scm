@@ -133,10 +133,10 @@ manual."
                     ;; Change this process' locale so that command-line
                     ;; arguments to 'info' are properly encoded.
                     (catch #t
-			   (lambda ()
+						   (lambda ()
                              (setlocale LC_ALL locale)
                              (setenv "LC_ALL" locale))
-			   (lambda _
+						   (lambda _
                              ;; Sometimes LOCALE itself is not available.  In that
                              ;; case pick the one UTF-8 locale that's known to work
                              ;; instead of failing.
@@ -151,11 +151,11 @@ manual."
          (provision (list (symbol-append 'term- (string->symbol tty))))
          (requirement '(user-processes host-name udev virtual-terminal))
          (start #~(lambda* (#:optional (locale "en_US.utf8"))
-			   (fork+exec-command
-			    (list #$(log-to-info tty "documentation") locale)
-			    #:environment-variables
-			    `("GUIX_LOCPATH=/run/current-system/locale"
-			      "TERM=linux"))))
+						   (fork+exec-command
+							(list #$(log-to-info tty "documentation") locale)
+							#:environment-variables
+							`("GUIX_LOCPATH=/run/current-system/locale"
+							  "TERM=linux"))))
          (stop #~(make-kill-destructor)))))
 
 (define %documentation-users
@@ -207,13 +207,13 @@ the given target.")
        (with-imported-modules (source-module-closure
                                '((gnu build install))
                                #:select? import-module?)
-			      #~(case-lambda
-				 ((target)
-				  (mount-cow-store target #$%backing-directory)
-				  target)
-				 (else
-				  ;; Do nothing, and mark the service as stopped.
-				  #f))))
+							  #~(case-lambda
+								 ((target)
+								  (mount-cow-store target #$%backing-directory)
+								  target)
+								 (else
+								  ;; Do nothing, and mark the service as stopped.
+								  #f))))
       (stop #~(lambda (target)
                 ;; Delete the temporary directory, but leave everything
                 ;; mounted as there may still be processes using it since
@@ -236,23 +236,19 @@ the user's target storage device rather than on the RAM disk."
   (define directory
     (computed-file "configuration-templates"
                    (with-imported-modules '((guix build utils))
-					  #~(begin
-					      (mkdir #$output)
-					      (for-each (lambda (file target)
-							  (copy-file file
-								     (string-append #$output "/"
-										    target)))
-							'(#$(local-file "channels.tmpl")
-							  #$(local-file "sysconfs/workstation-vm.tmpl")
-							  #$(local-file "sysconfs/browser-vm.tmpl")
-							  #$(local-file "sysconfs/data.tmpl")
-							  #$(local-file "sysconfs/docker.tmpl"))
-							'("channels.scm"
-							  "workstation-vm.scm"
-							  "browser-vm.scm"
-							  "data.tmpl"
-							  "docker.tmpl"))
-					      #t))))
+										  #~(begin
+											  (mkdir #$output)
+											  (for-each (lambda (file target)
+														  (copy-file file
+																	 (string-append #$output "/"
+																					target)))
+														'(#$(local-file "channels.tmpl")
+															#$(local-file "confs/workstation.tmpl")
+															#$(local-file "confs/vms/workstation-vm.tmpl"))
+														'("channels.scm"
+														  "workstation.tmpl"
+														  "workstation-vm.scm"))
+											  #t))))
 
   `(("configuration" ,directory)))
 
@@ -326,13 +322,13 @@ Alt-F2 to access documentation.\x1b[0m
                                                 (login-pause? #t))))
 
     (define bare-bones-os
-      (load "sysconfs/bare-bones.tmpl"))
+      (load "confs/bare-bones.tmpl"))
 
     (append
      ;; Generic services
      (list (service virtual-terminal-service-type)
 
-	   (normal-tty "tty1")
+		   (normal-tty "tty1")
            ;; (service kmscon-service-type
            ;;          (kmscon-configuration
            ;;           (virtual-terminal "tty1")
@@ -368,8 +364,8 @@ Alt-F2 to access documentation.\x1b[0m
            (service guix-service-type
                     (guix-configuration (authorize-key? #t)
                                         (substitute-urls
-		                         '("https://mirror.sjtu.edu.cn/guix/"
-                                           "https://bordeaux.guix.gnu.org"))))
+										 '("https://mirror.sjtu.edu.cn/guix/"
+										   "https://bordeaux.guix.gnu.org"))))
 
            ;; Start udev so that useful device nodes are available.
            ;; Use device-mapper rules for cryptsetup & co; enable the CRDA for
@@ -527,9 +523,9 @@ Alt-F2 to access documentation.\x1b[0m
 
    (packages (append
               (list emacs
-		    emacs-async
-		    emacs-stuff
-		    glibc         ; for 'tzselect' & co.
+					emacs-async
+					emacs-stuff
+					glibc         ; for 'tzselect' & co.
                     fontconfig
                     font-dejavu font-gnu-unifont
                     grub          ; mostly so xrefs to its manual work
@@ -545,10 +541,10 @@ installed to BOOTLOADER-TARGET (a drive), compiled for TRIPLET.
 If you want a serial console, make sure to specify one in your
 operating-system's kernel-arguments (\"console=ttyS0\" or similar)."
   (operating-system (inherit os)
-		    (bootloader (bootloader-configuration
-				 (bootloader (bootloader (inherit u-boot-bootloader)
-							 (package (make-u-boot-package board triplet))))
-				 (targets (list bootloader-target))))))
+					(bootloader (bootloader-configuration
+								 (bootloader (bootloader (inherit u-boot-bootloader)
+														 (package (make-u-boot-package board triplet))))
+								 (targets (list bootloader-target))))))
 
 (define* (embedded-installation-os bootloader bootloader-target tty
                                    #:key (extra-modules '()))

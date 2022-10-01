@@ -1,9 +1,20 @@
 (define-module (kefir misc base)
-  #:export (system-packages))
+  #:use-module (kefir pkgs emacs)
+  #:use-module (gnu system)
+  #:use-module (gnu packages)
+  #:export (%kefir-system-packages))
 
-(define system-packages
-  '("emacs"
-    "emacs-exwm"
-    "emacs-magit"
-    "emacs-stuff"
-    "nss-certs"))
+(define %kefir-system-packages
+  (append
+   %base-packages
+   (map (compose list specification->package+output)
+		'("git"
+		  "git:send-email"
+		  "xrandr"
+		  "openssh"
+		  "emacs"
+		  "emacs-exwm"
+		  "emacs-magit"
+		  "emacs-async"
+		  "emacs-cyberpunk-theme"
+		  "nss-certs"))))
