@@ -133,15 +133,15 @@ manual."
                     ;; Change this process' locale so that command-line
                     ;; arguments to 'info' are properly encoded.
                     (catch #t
-						   (lambda ()
-                             (setlocale LC_ALL locale)
-                             (setenv "LC_ALL" locale))
-						   (lambda _
-                             ;; Sometimes LOCALE itself is not available.  In that
-                             ;; case pick the one UTF-8 locale that's known to work
-                             ;; instead of failing.
-                             (setlocale LC_ALL "en_US.utf8")
-                             (setenv "LC_ALL" "en_US.utf8")))
+		      (lambda ()
+                        (setlocale LC_ALL locale)
+                        (setenv "LC_ALL" locale))
+		      (lambda _
+                        ;; Sometimes LOCALE itself is not available.  In that
+                        ;; case pick the one UTF-8 locale that's known to work
+                        ;; instead of failing.
+                        (setlocale LC_ALL "en_US.utf8")
+                        (setenv "LC_ALL" "en_US.utf8")))
 
                     (execl #$(file-append info-reader "/bin/info")
                            "info" "-d" infodir "-f" file "-n" node))))
@@ -151,11 +151,11 @@ manual."
          (provision (list (symbol-append 'term- (string->symbol tty))))
          (requirement '(user-processes host-name udev virtual-terminal))
          (start #~(lambda* (#:optional (locale "en_US.utf8"))
-						   (fork+exec-command
-							(list #$(log-to-info tty "documentation") locale)
-							#:environment-variables
-							`("GUIX_LOCPATH=/run/current-system/locale"
-							  "TERM=linux"))))
+		    (fork+exec-command
+		     (list #$(log-to-info tty "documentation") locale)
+		     #:environment-variables
+		     `("GUIX_LOCPATH=/run/current-system/locale"
+		       "TERM=linux"))))
          (stop #~(make-kill-destructor)))))
 
 (define %documentation-users
@@ -207,13 +207,13 @@ the given target.")
        (with-imported-modules (source-module-closure
                                '((gnu build install))
                                #:select? import-module?)
-							  #~(case-lambda
-								 ((target)
-								  (mount-cow-store target #$%backing-directory)
-								  target)
-								 (else
-								  ;; Do nothing, and mark the service as stopped.
-								  #f))))
+	 #~(case-lambda
+	     ((target)
+	      (mount-cow-store target #$%backing-directory)
+	      target)
+	     (else
+	      ;; Do nothing, and mark the service as stopped.
+	      #f))))
       (stop #~(lambda (target)
                 ;; Delete the temporary directory, but leave everything
                 ;; mounted as there may still be processes using it since
@@ -236,19 +236,21 @@ the user's target storage device rather than on the RAM disk."
   (define directory
     (computed-file "configuration-templates"
                    (with-imported-modules '((guix build utils))
-										  #~(begin
-											  (mkdir #$output)
-											  (for-each (lambda (file target)
-														  (copy-file file
-																	 (string-append #$output "/"
-																					target)))
-														'(#$(local-file "channels.tmpl")
-															#$(local-file "confs/workstation.tmpl")
-															#$(local-file "confs/vms/workstation-vm.tmpl"))
-														'("channels.scm"
-														  "workstation.tmpl"
-														  "workstation-vm.scm"))
-											  #t))))
+		     #~(begin
+			 (mkdir #$output)
+			 (for-each (lambda (file target)
+				     (copy-file file
+						(string-append #$output "/"
+							       target)))
+				   '(#$(local-file "channels.tmpl")
+				     #$(local-file "confs/workstation.tmpl")
+				     #$(local-file "confs/vms/workstation-vm-bios.tmpl")
+                                     #$(local-file "confs/vms/workstation-vm-uefi.tmpl"))
+				   '("channels.scm"
+				     "workstation.tmpl"
+				     "workstation-vm-bios.scm"
+                                     "workstation-vm-uefi.scm"))
+			 #t))))
 
   `(("configuration" ,directory)))
 
@@ -328,7 +330,7 @@ Alt-F2 to access documentation.\x1b[0m
      ;; Generic services
      (list (service virtual-terminal-service-type)
 
-		   (normal-tty "tty1")
+	   (normal-tty "tty1")
            ;; (service kmscon-service-type
            ;;          (kmscon-configuration
            ;;           (virtual-terminal "tty1")
@@ -364,8 +366,8 @@ Alt-F2 to access documentation.\x1b[0m
            (service guix-service-type
                     (guix-configuration (authorize-key? #t)
                                         (substitute-urls
-										 '("https://mirror.sjtu.edu.cn/guix/"
-										   "https://bordeaux.guix.gnu.org"))))
+					 '("https://mirror.sjtu.edu.cn/guix/"
+					   "https://bordeaux.guix.gnu.org"))))
 
            ;; Start udev so that useful device nodes are available.
            ;; Use device-mapper rules for cryptsetup & co; enable the CRDA for
@@ -379,15 +381,15 @@ Alt-F2 to access documentation.\x1b[0m
            ;; Install Unicode support and a suitable font.
            (service console-font-service-type
                     (map (match-lambda
-                          ("tty2"
-                           ;; Use a font that contains characters such as
-                           ;; curly quotes as found in the manual.
-                           '("tty2" . "LatGrkCyr-8x16"))
-                          (tty
-                           ;; Use a font that doesn't have more than 256
-                           ;; glyphs so that we can use colors with varying
-                           ;; brightness levels (see note in setfont(8)).
-                           `(,tty . "lat9u-16")))
+                           ("tty2"
+                            ;; Use a font that contains characters such as
+                            ;; curly quotes as found in the manual.
+                            '("tty2" . "LatGrkCyr-8x16"))
+                           (tty
+                            ;; Use a font that doesn't have more than 256
+                            ;; glyphs so that we can use colors with varying
+                            ;; brightness levels (see note in setfont(8)).
+                            `(,tty . "lat9u-16")))
                          '("tty1" "tty2" "tty3" "tty4" "tty5" "tty6")))
 
            ;; To facilitate copy/paste.
@@ -459,79 +461,79 @@ Alt-F2 to access documentation.\x1b[0m
 (define installation-os
   ;; The operating system used on installation images for USB sticks etc.
   (operating-system
-   (host-name "installer")
-   (timezone "Europe/Moscow")
-   (locale "en_US.utf8")
-   (name-service-switch %mdns-host-lookup-nss)
-   (bootloader (bootloader-configuration
-                (bootloader grub-bootloader)
-                (targets '("/dev/sda"))))
-   (label (string-append "GNU Guix installation "
-                         (package-version guix)))
+    (host-name "installer")
+    (timezone "Europe/Moscow")
+    (locale "en_US.utf8")
+    (name-service-switch %mdns-host-lookup-nss)
+    (bootloader (bootloader-configuration
+                 (bootloader grub-bootloader)
+                 (targets '("/dev/sda"))))
+    (label (string-append "GNU Guix installation "
+                          (package-version guix)))
 
-   ;; XXX: The AMD Radeon driver is reportedly broken, which makes kmscon
-   ;; non-functional:
-   ;; <https://lists.gnu.org/archive/html/guix-devel/2019-03/msg00441.html>.
-   ;; Thus, blacklist it.
-   (kernel-arguments '("quiet" "modprobe.blacklist=radeon"))
+    ;; XXX: The AMD Radeon driver is reportedly broken, which makes kmscon
+    ;; non-functional:
+    ;; <https://lists.gnu.org/archive/html/guix-devel/2019-03/msg00441.html>.
+    ;; Thus, blacklist it.
+    (kernel-arguments '("quiet" "modprobe.blacklist=radeon"))
 
-   (file-systems
-    ;; Note: the disk image build code overrides this root file system with
-    ;; the appropriate one.
-    (cons* (file-system
-            (mount-point "/")
-            (device (file-system-label "Guix_image"))
-            (type "ext4"))
+    (file-systems
+     ;; Note: the disk image build code overrides this root file system with
+     ;; the appropriate one.
+     (cons* (file-system
+              (mount-point "/")
+              (device (file-system-label "Guix_image"))
+              (type "ext4"))
 
-           ;; Make /tmp a tmpfs instead of keeping the overlayfs.  This
-           ;; originally was used for unionfs because FUSE creates
-           ;; '.fuse_hiddenXYZ' files for each open file, and this confuses
-           ;; Guix's test suite, for instance (see
-           ;; <http://bugs.gnu.org/23056>).  We keep this for overlayfs to be
-           ;; on the safe side.
-           (file-system
-            (mount-point "/tmp")
-            (device "none")
-            (type "tmpfs")
-            (check? #f))
+            ;; Make /tmp a tmpfs instead of keeping the overlayfs.  This
+            ;; originally was used for unionfs because FUSE creates
+            ;; '.fuse_hiddenXYZ' files for each open file, and this confuses
+            ;; Guix's test suite, for instance (see
+            ;; <http://bugs.gnu.org/23056>).  We keep this for overlayfs to be
+            ;; on the safe side.
+            (file-system
+              (mount-point "/tmp")
+              (device "none")
+              (type "tmpfs")
+              (check? #f))
 
-           ;; XXX: This should be %BASE-FILE-SYSTEMS but we don't need
-           ;; elogind's cgroup file systems.
-           (list %pseudo-terminal-file-system
-                 %shared-memory-file-system
-                 %efivars-file-system
-                 %immutable-store)))
+            ;; XXX: This should be %BASE-FILE-SYSTEMS but we don't need
+            ;; elogind's cgroup file systems.
+            (list %pseudo-terminal-file-system
+                  %shared-memory-file-system
+                  %efivars-file-system
+                  %immutable-store)))
 
-   (users (list (user-account
-                 (name "guest")
-                 (group "users")
-                 (supplementary-groups '("wheel")) ; allow use of sudo
-                 (password "password")
-                 (comment "Guest of GNU"))))
+    (users (list (user-account
+                  (name "guest")
+                  (group "users")
+                  (supplementary-groups '("wheel")) ; allow use of sudo
+                  (password "password")
+                  (comment "Guest of GNU"))))
 
-   (issue %issue)
-   (services (%installation-services))
+    (issue %issue)
+    (services (%installation-services))
 
-   ;; We don't need setuid programs, except for 'passwd', which can be handy
-   ;; if one is to allow remote SSH login to the machine being installed.
-   (setuid-programs (list (setuid-program
-                           (program (file-append shadow "/bin/passwd")))))
+    ;; We don't need setuid programs, except for 'passwd', which can be handy
+    ;; if one is to allow remote SSH login to the machine being installed.
+    (setuid-programs (list (setuid-program
+                            (program (file-append shadow "/bin/passwd")))))
 
-   (pam-services
-    ;; Explicitly allow for empty passwords.
-    (base-pam-services #:allow-empty-passwords? #t))
+    (pam-services
+     ;; Explicitly allow for empty passwords.
+     (base-pam-services #:allow-empty-passwords? #t))
 
-   (packages (append
-              (list emacs
-					emacs-async
-					emacs-stuff
-					glibc         ; for 'tzselect' & co.
-                    fontconfig
-                    font-dejavu font-gnu-unifont
-                    grub          ; mostly so xrefs to its manual work
-                    nss-certs)    ; To access HTTPS, use git, etc.
-              %base-packages-disk-utilities
-              %base-packages))))
+    (packages (append
+               (list emacs
+		     emacs-async
+		     emacs-stuff
+		     glibc         ; for 'tzselect' & co.
+                     fontconfig
+                     font-dejavu font-gnu-unifont
+                     grub          ; mostly so xrefs to its manual work
+                     nss-certs)    ; To access HTTPS, use git, etc.
+               %base-packages-disk-utilities
+               %base-packages))))
 
 (define* (os-with-u-boot os board #:key (bootloader-target "/dev/mmcblk0")
                          (triplet "arm-linux-gnueabihf"))
@@ -541,10 +543,10 @@ installed to BOOTLOADER-TARGET (a drive), compiled for TRIPLET.
 If you want a serial console, make sure to specify one in your
 operating-system's kernel-arguments (\"console=ttyS0\" or similar)."
   (operating-system (inherit os)
-					(bootloader (bootloader-configuration
-								 (bootloader (bootloader (inherit u-boot-bootloader)
-														 (package (make-u-boot-package board triplet))))
-								 (targets (list bootloader-target))))))
+		    (bootloader (bootloader-configuration
+				 (bootloader (bootloader (inherit u-boot-bootloader)
+							 (package (make-u-boot-package board triplet))))
+				 (targets (list bootloader-target))))))
 
 (define* (embedded-installation-os bootloader bootloader-target tty
                                    #:key (extra-modules '()))
@@ -553,15 +555,15 @@ The initrd gets the extra modules EXTRA-MODULES.
 A getty is provided on TTY.
 The bootloader BOOTLOADER is installed to BOOTLOADER-TARGET."
   (operating-system
-   (inherit installation-os)
-   (bootloader (bootloader-configuration
-                (bootloader bootloader)
-                (targets (list bootloader-target))))
-   (kernel linux-libre)
-   (kernel-arguments
-    (cons (string-append "console=" tty)
-          (operating-system-user-kernel-arguments installation-os)))
-   (initrd-modules (append extra-modules %base-initrd-modules))))
+    (inherit installation-os)
+    (bootloader (bootloader-configuration
+                 (bootloader bootloader)
+                 (targets (list bootloader-target))))
+    (kernel linux-libre)
+    (kernel-arguments
+     (cons (string-append "console=" tty)
+           (operating-system-user-kernel-arguments installation-os)))
+    (initrd-modules (append extra-modules %base-initrd-modules))))
 
 (define beaglebone-black-installation-os
   (embedded-installation-os u-boot-beaglebone-black-bootloader

@@ -1,0 +1,39 @@
+(use-modules (gnu)
+	     (kefir srvcs base)
+	     (kefir srvcs workstation)
+	     (kefir misc base))
+
+(operating-system
+  (locale "en_US.utf8")
+  (timezone "Europe/Moscow")
+  (keyboard-layout (keyboard-layout "us"))
+  (host-name "workstation_vm")
+  (users (cons* (user-account
+                 (name "user")
+                 (comment "User")
+                 (group "users")
+                 (home-directory "/home/user")
+                 (supplementary-groups
+		  '("wheel" "netdev" "audio" "video")))
+		%base-user-accounts))
+  (packages (append
+	     %kefir-system-packages
+	     (map (compose list specification->package+output)
+		  '("emacs-stuff"))))
+  (services %kefir-workstation-services)
+  (bootloader (bootloader-configuration
+               (bootloader grub-efi-bootloader)
+               (targets '("/boot/efi"))))
+  (file-systems (append
+                 (list (file-system
+                         (device (file-system-label "my-root"))
+                         (mount-point "/")
+                         (type "ext4"))
+                       (file-system
+                         (device (uuid "1234-ABCD" 'fat))
+                         (mount-point "/boot/efi")
+                         (type "vfat")))
+                 %base-file-systems))
+
+  ;; Allow resolution of '.local' host names with mDNS.
+  (name-service-switch %mdns-host-lookup-nss))
