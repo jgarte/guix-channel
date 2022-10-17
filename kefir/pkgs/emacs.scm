@@ -24,8 +24,7 @@
 		  (base32 "0h3va3znlv8j53zihmx9arsyzvngwvl304grqkrq4f10qasc2r72"))))
       (build-system emacs-build-system)
       (propagated-inputs
-       (list emacs-async emacs-guix  emacs-eglot emacs-company
-			 python python-lsp-server))
+       (list emacs-async))
       (arguments
        `(#:include '("\\.el$")))
       (home-page "https://github.com/KefirTheAutomator/stuff")

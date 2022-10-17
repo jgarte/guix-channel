@@ -19,7 +19,9 @@
   (packages (append
 	     %kefir-system-packages
 	     (map (compose list specification->package+output)
-		  '("emacs-stuff"))))
+		  '("emacs-stuff"
+                    "emacs-guix" "emacs-eglot" "emacs-company"
+                    "python" "python-lsp-server"))))
   (services %kefir-workstation-services)
   (bootloader
    (bootloader-configuration
