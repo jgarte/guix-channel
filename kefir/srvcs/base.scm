@@ -46,8 +46,8 @@
         (service guix-service-type
 				 (guix-configuration
 				  (substitute-urls
-				   '("https://mirror.sjtu.edu.cn/guix/"
-					 "https://bordeaux.guix.gnu.org"))))
+				   '(;; "https://mirror.sjtu.edu.cn/guix/"
+				     "https://bordeaux.guix.gnu.org"))))
         (service nscd-service-type)
 
         (service rottlog-service-type)
