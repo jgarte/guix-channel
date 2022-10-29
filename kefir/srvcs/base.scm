@@ -22,32 +22,34 @@
 
         (syslog-service)
         (service agetty-service-type (agetty-configuration
-                                       (extra-options '("-L")) ; no carrier detect
-                                       (term "vt100")
-                                       (tty #f) ; automatic
-                                       (shepherd-requirement '(syslogd))))
+                                      (extra-options '("-L")) ; no carrier detect
+                                      (term "vt100")
+                                      (tty #f) ; automatic
+                                      (shepherd-requirement '(syslogd))))
 
         (service mingetty-service-type (mingetty-configuration
-                                         (tty "tty1")))
+                                        (tty "tty1")))
         (service mingetty-service-type (mingetty-configuration
-                                         (tty "tty2")))
+                                        (tty "tty2")))
         (service mingetty-service-type (mingetty-configuration
-                                         (tty "tty3")))
+                                        (tty "tty3")))
         (service mingetty-service-type (mingetty-configuration
-                                         (tty "tty4")))
+                                        (tty "tty4")))
         (service mingetty-service-type (mingetty-configuration
-                                         (tty "tty5")))
+                                        (tty "tty5")))
         (service mingetty-service-type (mingetty-configuration
-                                         (tty "tty6")))
+                                        (tty "tty6")))
 
         (service static-networking-service-type
                  (list %loopback-static-networking))
         (service urandom-seed-service-type)
         (service guix-service-type
-				 (guix-configuration
-				  (substitute-urls
-				   '(;; "https://mirror.sjtu.edu.cn/guix/"
-				     "https://bordeaux.guix.gnu.org"))))
+		 (guix-configuration
+		  (substitute-urls
+		   '("https://mirror.sjtu.edu.cn/guix/"
+		     "https://bordeaux.guix.gnu.org"
+                     "https://mirror.guix.org.cn"
+                     "https://ci.guix.trop.in"))))
         (service nscd-service-type)
 
         (service rottlog-service-type)
@@ -62,7 +64,7 @@
         ;; less critical, but handy.
         (service udev-service-type
                  (udev-configuration
-                   (rules (list lvm2 fuse alsa-utils crda))))
+                  (rules (list lvm2 fuse alsa-utils crda))))
 
         (service sysctl-service-type)
 

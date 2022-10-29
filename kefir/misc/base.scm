@@ -8,13 +8,13 @@
   (append
    %base-packages
    (map (compose list specification->package+output)
-		'("git"
-		  "git:send-email"
-		  "xrandr"
-		  "openssh"
-		  "emacs"
-		  "emacs-exwm"
-		  "emacs-magit"
-		  "emacs-async"
-		  "emacs-cyberpunk-theme"
-		  "nss-certs"))))
+	'("git"
+	  "git:send-email"
+	  "xrandr"
+	  "openssh"
+	  "emacs"
+	  "emacs-exwm"
+	  "emacs-magit"
+	  "emacs-async"
+	  "emacs-cyberpunk-theme"
+	  "nss-certs"))))

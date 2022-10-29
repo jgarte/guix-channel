@@ -23,22 +23,22 @@
    %kefir-base-services
    (list
     (service sddm-service-type)
-	(screen-locker-service xlockmore "xlock")
-	(simple-service 'mtp udev-service-type (list libmtp))
-	(service sane-service-type)
-	polkit-wheel-service
-	(simple-service
-	 'mount-setuid-helpers
-	 setuid-program-service-type
+    (screen-locker-service xlockmore "xlock")
+    (simple-service 'mtp udev-service-type (list libmtp))
+    (service sane-service-type)
+    polkit-wheel-service
+    (simple-service
+     'mount-setuid-helpers
+     setuid-program-service-type
      (map (lambda (program)
             (setuid-program
              (program program)))
           (list (file-append nfs-utils "/sbin/mount.nfs")
-				(file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
-	fontconfig-file-system-service
-	(service network-manager-service-type)
-	(service wpa-supplicant-service-type)
-	(simple-service 'network-manager-applet
+		(file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
+    fontconfig-file-system-service
+    (service network-manager-service-type)
+    (service wpa-supplicant-service-type)
+    (simple-service 'network-manager-applet
                     profile-service-type
                     (list network-manager-applet))
     (service modem-manager-service-type)
