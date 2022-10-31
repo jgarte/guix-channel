@@ -2,7 +2,6 @@
   #:use-module (kefir srvcs base)
   #:use-module (gnu services)
   #:use-module (gnu services base)
-  #:use-module (gnu services sddm)
   #:use-module (gnu services networking)
   #:use-module (gnu services xorg)
   #:use-module (gnu services desktop)
@@ -22,7 +21,7 @@
   (append
    %kefir-base-services
    (list
-    (service sddm-service-type)
+    (service slim-service-type)
     (screen-locker-service xlockmore "xlock")
     (simple-service 'mtp udev-service-type (list libmtp))
     (service sane-service-type)
