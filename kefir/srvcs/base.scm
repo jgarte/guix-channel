@@ -49,7 +49,7 @@
 		   '("https://mirror.sjtu.edu.cn/guix/"
 		     "https://bordeaux.guix.gnu.org"
                      "https://mirror.guix.org.cn"
-                     "https://ci.guix.trop.in"))))
+                     "http://ci.guix.trop.in"))))
         (service nscd-service-type)
 
         (service rottlog-service-type)
