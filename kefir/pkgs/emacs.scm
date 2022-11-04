@@ -6,7 +6,7 @@
   #:use-module (gnu packages emacs-xyz))
 
 (define-public emacs-stuff
-  (let ((commit "7f6439098129bf77977913636bad23123e820c3b")
+  (let ((commit "05884702fb19cffd606d15760697d436e23658ca")
 	(revision "1"))
     (package
       (name "emacs-stuff")
@@ -19,7 +19,7 @@
 	       (commit commit)))
 	 (file-name (git-file-name name version))
 	 (sha256
-	  (base32 "0h3va3znlv8j53zihmx9arsyzvngwvl304grqkrq4f10qasc2r72"))))
+	  (base32 "06cms02hm2k59z9kigl51a6n1aljdzr9nsishfavq6yc6f0y3fls"))))
       (build-system emacs-build-system)
       (propagated-inputs
        (list emacs-async))
