@@ -14,7 +14,5 @@
 	  "openssh"
 	  "emacs"
 	  "emacs-exwm"
-	  "emacs-magit"
 	  "emacs-async"
-	  "emacs-cyberpunk-theme"
 	  "nss-certs"))))
