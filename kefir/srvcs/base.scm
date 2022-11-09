@@ -1,4 +1,6 @@
 (define-module (kefir srvcs base)
+  #:use-module (gnu system)
+  #:use-module (gnu packages)
   #:use-module (gnu services base)
   #:use-module (gnu services)
   #:use-module (gnu services admin)
@@ -9,7 +11,15 @@
   #:use-module (gnu packages bash)
   #:use-module (gnu packages base)
   #:use-module (guix gexp)
-  #:export (%kefir-base-services))
+  #:export (%kefir-base-packages
+            %kefir-base-services))
+
+(define %kefir-base-packages
+  (append
+   %base-packages
+   (map (compose list specification->package+output)
+        '("git" "git:send-email" "xrandr" "openssh"
+          "emacs" "emacs-exwm" "emacs-async" "nss-certs"))))
 
 (define %kefir-base-services
   (list (service login-service-type)

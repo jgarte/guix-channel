@@ -1,4 +1,5 @@
 (define-module (kefir srvcs workstation)
+  #:use-module (kefir pkgs emacs)
   #:use-module (kefir srvcs base)
   #:use-module (gnu services)
   #:use-module (gnu services base)
@@ -8,6 +9,7 @@
   #:use-module (gnu services avahi)
   #:use-module (gnu services dbus)
   #:use-module (gnu services sound)
+  #:use-module (gnu packages)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages libusb)
   #:use-module (gnu packages nfs)
@@ -15,7 +17,15 @@
   #:use-module (gnu packages gnome) ;; for network-manager-applet
   #:use-module (gnu system setuid)
   #:use-module (guix gexp)
-  #:export (%kefir-workstation-services))
+  #:export (%kefir-workstation-packages
+            %kefir-workstation-services))
+
+(define %kefir-workstation-packages
+  (append
+   %kefir-base-packages
+   (map (compose list specification->package+output)
+        '("emacs-guix" "emacs-eglot" "emacs-company"
+          "python" "python-lsp-server"))))
 
 (define %kefir-workstation-services
   (append
