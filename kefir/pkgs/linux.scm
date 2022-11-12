@@ -3,28 +3,29 @@
   #:use-module (guix download)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (guix git-download)
   #:use-module (gnu packages linux))
 
-(define (linux-urls version)
-  "Return a list of URLS for Linux VERSION."
-  (list (string-append "https://www.kernel.org/pub/linux/kernel/v"
-                       (version-major version) ".x/linux-" version ".tar.xz")))
-
-(define* (corrupt-linux kernel version hash #:key (name "kefir-linux"))
+(define* (corrupt-linux-git kernel-package version hash url #:key (name "kefir-linux-git"))
   (package
-    (inherit kernel)
+    (inherit kernel-package)
     (name name)
     (version version)
     (source (origin
-              (method url-fetch)
-              (uri (linux-urls version))
-              (sha256 (base32 hash))))
+              (method git-fetch)
+	      (uri (git-reference
+	            (url url)
+	            (commit version)))
+	      (file-name (git-file-name name version))
+	      (sha256
+	       (base32 hash))))
     (home-page "https://www.kernel.org/")
     (synopsis "Linux kernel with nonfree binary blobs included")
     (description
      "The unmodified Linux kernel, including nonfree blobs, for running Guix
 System on hardware which requires nonfree software to function.")))
 
-(define-public kefir-linux-6.0
-  (corrupt-linux linux-libre-6.0 "6.0.7"
-                 "03srfv33r2vc48h051zicvn9hz78kc08vh7ljzlmcnk0g0mwrnk7"))
+(define-public kefir-linux-git
+  (corrupt-linux-git linux-libre-6.0 "v6.1-rc1"
+                     "0agzh4c7ldg9jqinm9zngzbj8rp24l4bk7slmb7xg1d87m01k8dz"
+                     "https://github.com/torvalds/linux"))
