@@ -16,7 +16,7 @@
          (method git-fetch)
          (uri
           (git-reference
-           (url "https://github.com/KefirTheAutomator/daemon")
+           (url "https://github.com/autokefir/daemon.git")
            (commit commit)))
          (file-name (git-file-name name version))
          (modules '((guix build utils)))

@@ -15,7 +15,7 @@
        (origin
 	 (method git-fetch)
 	 (uri (git-reference
-	       (url "https://github.com/KefirTheAutomator/stuff")
+	       (url "https://github.com/autokefir/stuff.git")
 	       (commit commit)))
 	 (file-name (git-file-name name version))
 	 (sha256
