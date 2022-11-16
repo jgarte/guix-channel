@@ -247,7 +247,7 @@ the user's target storage device rather than on the RAM disk."
 				     #$(local-file "confs/vms/workstation-vm-bios.tmpl")
                                      #$(local-file "confs/vms/workstation-vm-uefi.tmpl"))
 				   '("channels.scm"
-				     "workstation.tmpl"
+				     "workstation.scm"
 				     "workstation-vm-bios.scm"
                                      "workstation-vm-uefi.scm"))
 			 #t))))
